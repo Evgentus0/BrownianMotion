@@ -12,10 +12,12 @@ namespace BrownianMotion
             var k = 50;
             var p = 0.6d;
 
+            var withLock = true;
+
             var sleepSec = 20;
             var checkStatEverySec = 5;
 
-            var crystal = new Crystal(n, k, p);
+            var crystal = new Crystal(n, k, p, withLock);
 
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;

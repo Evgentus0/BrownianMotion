@@ -12,18 +12,19 @@ namespace BrownianMotion
         private readonly int _n;
         private readonly int _k;
         private readonly double _p;
+        private readonly bool _withLock;
         private readonly List<int> _crystal;
 
         private object _locker = new object();
 
         public List<int> CrystalState => _crystal;
 
-        public Crystal(int n, int k, double p)
+        public Crystal(int n, int k, double p, bool withLock)
         {
             _n = n;
             _k = k;
             _p = p;
-
+            _withLock = withLock;
             _crystal = new List<int>(new int[n]);
             _crystal[0] = k;
         }
@@ -41,8 +42,14 @@ namespace BrownianMotion
 
         private void UpdateCrystalState(object sender, AtomEventArgs e)
         {
-            UpdateWithLock(e);
-            //UpdateWithoudLock(e);
+            if (_withLock)
+            {
+                UpdateWithLock(e);
+            }
+            else
+            {
+                UpdateWithoudLock(e);
+            }
         }
 
         private void UpdateWithLock(AtomEventArgs e)
