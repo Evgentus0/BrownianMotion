@@ -8,24 +8,41 @@ namespace BrownianMotion
     {
         static void Main(string[] args)
         {
-            var n = 100;
-            var k = 30;
+            var n = 70;
+            var k = 50;
             var p = 0.6d;
+
+            var sleepSec = 20;
+            var checkStatEverySec = 5;
 
             var crystal = new Crystal(n, k, p);
 
             var tokenSource = new CancellationTokenSource();
             var token = tokenSource.Token;
 
-            crystal.StartSimulation(token);
+            TimerCallback callback = new TimerCallback(WriteState);
 
-            Thread.Sleep(TimeSpan.FromSeconds(10));
+            crystal.StartSimulation(token);
+            Timer timer = new Timer(callback, crystal, TimeSpan.Zero, TimeSpan.FromSeconds(checkStatEverySec));
+            Thread.Sleep(TimeSpan.FromSeconds(sleepSec));
 
             tokenSource.Cancel();
 
-            crystal.CrystalState.ForEach(x => Console.WriteLine(x));
-            Console.WriteLine("===========================================================================");
+            timer.Change(Timeout.Infinite, Timeout.Infinite);
+
+            Console.WriteLine("================= End simulation =========================");
+            WriteState(crystal);
+            Console.WriteLine("==================================== Total count =======================================");
             Console.WriteLine(crystal.CrystalState.Sum());
+        }
+
+        public static void WriteState(object crystalObj)
+        {
+            var crystal = (Crystal)crystalObj;
+            var state = crystal.CrystalState.ToList();
+
+            var line = state.Select(x => x.ToString()).Aggregate((x, y) => $"{x}, {y}");
+            Console.WriteLine(line);
         }
     }
 }
